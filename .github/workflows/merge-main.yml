@@ -6,10 +6,10 @@ permissions:
 on:
   pull_request:
     types:
-      # - closed
-      - opened
-      - reopened
-      - synchronize
+      - closed
+      # - opened
+      # - reopened
+      # - synchronize
     branches:
       - main
 # on:
@@ -27,6 +27,7 @@ jobs:
     permissions:
       contents: write
 
+    if: github.event.pull_request.merged == true  # Ensure the PR was merged
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,24 +44,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install tomli tomli-w
 
-      - name: Get Commit Range
+      - name: Get Base and Latest Commits of the Merged PR
         id: commit-range
         run: |
-          # Get the base commit of the PR (the commit where the PR branch diverged from the main branch)
-          BASE_COMMIT=$(git merge-base HEAD origin/main)
+          # Get the base commit of the PR (the commit where it diverged from the main branch)
+          BASE_COMMIT=$(git merge-base HEAD^ origin/main)
 
-          # Get the first commit in the PR (lowest commit in the range)
-          FIRST_COMMIT=$(git rev-list --reverse $BASE_COMMIT..HEAD | head -n 1)
+          # Get the commits introduced by this PR
+          COMMITS=$(git rev-list --reverse $BASE_COMMIT..HEAD)
 
-          # Get the latest (top) commit in the PR
-          LATEST_COMMIT=$(git rev-list $BASE_COMMIT..HEAD | head -n 1)
+          # Extract the first and last commits
+          FIRST_COMMIT=$(echo "$COMMITS" | head -n 1)
+          LATEST_COMMIT=$(echo "$COMMITS" | tail -n 1)
 
-          # Set the outputs for use in later steps
+          # Set outputs for later steps
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
           echo "first_commit=$FIRST_COMMIT" >> $GITHUB_OUTPUT
-          echo "latest_commit=$GITHUB_REF" >> $GITHUB_OUTPUT
+          echo "latest_commit=$LATEST_COMMIT" >> $GITHUB_OUTPUT
 
-          # Log outputs for debugging purposes
+          # Log for debugging
           echo "Base Commit: $BASE_COMMIT"
           echo "First Commit in PR: $FIRST_COMMIT"
           echo "Latest Commit in PR: $LATEST_COMMIT"
