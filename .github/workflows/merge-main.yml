@@ -58,7 +58,7 @@ jobs:
           # Set the outputs for use in later steps
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
           echo "first_commit=$FIRST_COMMIT" >> $GITHUB_OUTPUT
-          echo "latest_commit=$LATEST_COMMIT" >> $GITHUB_OUTPUT
+          echo "latest_commit=$GITHUB_REF" >> $GITHUB_OUTPUT
 
           # Log outputs for debugging purposes
           echo "Base Commit: $BASE_COMMIT"
