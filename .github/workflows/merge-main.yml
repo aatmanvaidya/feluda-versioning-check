@@ -53,7 +53,7 @@ jobs:
           FIRST_COMMIT=$(git rev-list --reverse $BASE_COMMIT..HEAD | head -n 1)
 
           # Get the latest (top) commit in the PR
-          LATEST_COMMIT=$(git rev-parse HEAD)
+          LATEST_COMMIT=$(git rev-list $BASE_COMMIT..HEAD | tail -n 1)
 
           # Set the outputs for use in later steps
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
