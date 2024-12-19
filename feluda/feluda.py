@@ -8,6 +8,7 @@ log = logging.getLogger(__name__)
 # change 18
 
 
+
 class Feluda:
     def __init__(self, configPath):
         self.config = config.load(configPath)
