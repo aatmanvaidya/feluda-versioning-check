@@ -23,6 +23,13 @@ jobs:
         run: |
           uv --version
           uv cache dir
+          which python
+
+      - name: Create and activate virtual environment
+        run: |
+          uv venv
+          echo "Virtual environment location:"
+          ls -la .venv/
 
       # - name: Get modified files
       #   id: changed-files
