@@ -60,6 +60,13 @@ jobs:
           uv pip install .
           uv pip install ".[dev]"
 
+          echo "Installing Operator system level packages"
+          echo "Installing ffmpeg..."
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          echo "ffmpeg version:"
+          ffmpeg -version
+
       - name: Run tests for changed operators
         if: steps.check-changes.outputs.has_changes == 'true'
         run: |
@@ -154,6 +161,13 @@ jobs:
           else
             echo "No Hugging Face cache found at ~/.cache/huggingface/hub"
           fi
+
+          # Remove ffmpeg
+          echo "----------------------------------------"
+          echo "Removing ffmpeg..."
+          sudo apt-get remove -y ffmpeg
+          sudo apt-get autoremove -y
+          echo "FFmpeg removed"
 
           echo "----------------------------------------"
           echo "Cleanup completed"
