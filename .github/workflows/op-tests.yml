@@ -28,8 +28,24 @@ jobs:
       - name: Create and activate virtual environment
         run: |
           uv venv
+
+          if [ ! -d "$.venv" ]; then
+            echo "$.venv does not exist."
+          fi
           echo "Virtual environment location:"
-          ls -la .venv/
+          echo "PWD"
+          pwd
+
+
+      # This ensures cleanup runs even if previous steps fail
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Cleaning up uv cache and virtual environment..."
+          uv cache dir
+          uv cache prune
+          uv cache clean
+          rm -rf .venv/
 
       # - name: Get modified files
       #   id: changed-files
