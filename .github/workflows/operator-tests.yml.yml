@@ -66,14 +66,10 @@ jobs:
               if [ -f "${OPERATOR_DIR}test.py" ]; then
                 echo "✓ Found test.py in: ${OPERATOR_DIR}"
                 echo "→ Running tests for: $(basename $OPERATOR_DIR)"
-                echo "→ Changing to directory: ${OPERATOR_DIR}"
-                cd "$OPERATOR_DIR"
                 echo "→ Current directory before running tests: $(pwd)"
-                # python test.py
+                uv run -m unittest $OPERATOR_DIR/test.py
                 TEST_EXIT_CODE=$?
                 echo "→ Test exit code: $TEST_EXIT_CODE"
-                cd - > /dev/null
-                echo "→ Changed back to: $(pwd)"
                 FOUND_TESTS=true
               else
                 echo "✗ No test.py found in: ${OPERATOR_DIR}"
@@ -83,73 +79,65 @@ jobs:
             fi
           done
 
-          # # Final status report
-          # echo "----------------------------------------"
-          # echo "Final Status Report:"
-          # if [ "$FOUND_TESTS" = false ]; then
-          #   echo "✗ No test.py files were found in changed operator directories"
-          # else
-          #   echo "✓ Tests were executed for changed operators"
-          # fi
-          # echo "----------------------------------------"
+          # Final status report
+          echo "----------------------------------------"
+          echo "Final Status Report:"
+          if [ "$FOUND_TESTS" = false ]; then
+            echo "✗ No test.py files were found in changed operator directories"
+          else
+            echo "✓ Tests were executed for changed operators"
+          fi
+          echo "----------------------------------------"
 
       # This ensures cleanup runs even if previous steps fail
       - name: Cleanup
         if: always()
         run: |
-          echo "Cleaning up uv cache and virtual environment..."
+          echo "----------------------------------------"
+          echo "Starting cleanup process..."
+          echo "----------------------------------------"
+
+          # Check and print uv cache
+          echo "Cleaning UV cache..."
           uv cache dir
           uv cache prune
           uv cache clean
-          rm -rf .venv/
 
-      # - name: Get modified files
-      #   id: changed-files
-      #   uses: tj-actions/changed-files@v40
-      #   with:
-      #     files: |
-      #       feluda/operators/**/*.py
-      #       feluda/operators/**/pyproject.toml
+          # Check and remove virtual environment
+          echo "----------------------------------------"
+          echo "Virtual Environment:"
+          if [ -d ".venv" ]; then
+            echo "Virtual environment exists!"
+            echo "Removing virtual environment..."
+            rm -rf .venv/
+          else
+            echo "No virtual environment found at .venv/"
+          fi
 
-      # - name: Install base dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install -e .
-      #     pip install pytest
+          # Check and remove PyTorch cache
+          echo "----------------------------------------"
+          echo "PyTorch Cache:"
+          if [ -d ~/.cache/torch/hub ]; then
+            echo "PyTorch cache exists, contents:"
+            ls -la ~/.cache/torch/hub
+            echo "Removing PyTorch cache..."
+            rm -rf ~/.cache/torch/hub
+          else
+            echo "No PyTorch cache found at ~/.cache/torch/hub"
+          fi
 
-      # - name: Run tests for modified operators
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   run: |
-      #     echo "Modified files:"
-      #     for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-      #       echo "$file"
-      #       if [[ $file == feluda/operators/* ]]; then
-      #         operator_name=$(basename "$file" .py)
-      #         operator_folder=$(dirname "$file")
+          # Check and remove Hugging Face cache
+          echo "----------------------------------------"
+          echo "Hugging Face Cache:"
+          if [ -d ~/.cache/huggingface/hub ]; then
+            echo "Hugging Face cache exists, contents:"
+            ls -la ~/.cache/huggingface/hub
+            echo "Removing Hugging Face cache..."
+            rm -rf ~/.cache/huggingface/hub
+          else
+            echo "No Hugging Face cache found at ~/.cache/huggingface/hub"
+          fi
 
-      #         # Install operator-specific dependencies if pyproject.toml exists
-      #         if [ -f "$operator_folder/pyproject.toml" ]; then
-      #           echo "Installing dependencies for $operator_name"
-      #           pip install -r "$operator_folder/pyproject.toml"
-      #         fi
-
-      #         # Run tests if they exist
-      #         test_path="tests/operators/test_${operator_name}.py"
-      #         if [ -f "$test_path" ]; then
-      #           echo "Running tests for $operator_name"
-      #           python -m pytest "$test_path" -v
-      #         fi
-      #       fi
-      #     done
-
-      # - name: Cleanup
-      #   if: always()
-      #   run: |
-      #     # Clean up model caches
-      #     rm -rf ~/.cache/torch/hub
-      #     rm -rf ~/.cache/huggingface/hub
-
-      #     # Clean up pip and Python caches
-      #     rm -rf ~/.cache/pip
-      #     rm -rf /tmp/feluda*
-      #     find . -type d -name "__pycache__" -exec rm -r {} +
+          echo "----------------------------------------"
+          echo "Cleanup completed"
+          echo "----------------------------------------"
