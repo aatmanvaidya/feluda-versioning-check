@@ -41,7 +41,7 @@ jobs:
           echo "Base branch: $BASE_BRANCH"
 
           # Find changed files in operators directory
-          CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH...HEAD feluda/operators/)
+          CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH...HEAD operators/)
           echo "Changed files:"
           echo "$CHANGED_FILES" | sed 's/^/  /'  # This indents each file for better readability
 
