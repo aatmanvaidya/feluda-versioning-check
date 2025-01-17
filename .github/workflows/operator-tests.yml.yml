@@ -67,8 +67,8 @@ jobs:
                 echo "✓ Found test.py in: ${OPERATOR_DIR}"
                 echo "→ Running tests for: $(basename $OPERATOR_DIR)"
                 echo "→ Current directory before running tests: $(pwd)"
-                uv pip install $OPERATOR_DIR/pyproject.toml
-                uv run -m unittest $OPERATOR_DIR/test.py
+                uv pip install $OPERATOR_DIRpyproject.toml
+                uv run -m unittest $OPERATOR_DIRtest.py
                 TEST_EXIT_CODE=$?
                 echo "→ Test exit code: $TEST_EXIT_CODE"
                 FOUND_TESTS=true
