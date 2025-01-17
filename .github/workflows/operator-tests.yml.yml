@@ -62,8 +62,8 @@ jobs:
 
           echo "Installing Operator system level packages"
           echo "Installing ffmpeg..."
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get update > /dev/null
+          sudo apt-get install -y ffmpeg > /dev/null
           echo "ffmpeg version:"
           ffmpeg -version
 
@@ -165,8 +165,8 @@ jobs:
           # Remove ffmpeg
           echo "----------------------------------------"
           echo "Removing ffmpeg..."
-          sudo apt-get remove -y ffmpeg
-          sudo apt-get autoremove -y
+          sudo apt-get remove -y ffmpeg > /dev/null
+          sudo apt-get autoremove -y > /dev/null
           echo "FFmpeg removed"
 
           echo "----------------------------------------"
