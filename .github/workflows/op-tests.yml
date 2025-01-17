@@ -6,9 +6,9 @@ on:
       - main
       - development
       - hotfix
-    paths:
-      - 'feluda/operators/**'
-      - '.github/workflows/operator-tests.yml'
+    # paths:
+    #   - 'feluda/operators/**'
+    #   - '.github/workflows/operator-tests.yml'
 
 jobs:
   test-operators:
