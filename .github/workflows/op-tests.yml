@@ -28,13 +28,8 @@ jobs:
       - name: Create and activate virtual environment
         run: |
           uv venv
-
-          if [ ! -d "$.venv" ]; then
-            echo "$.venv does not exist."
-          fi
           echo "Virtual environment location:"
-          echo "PWD"
-          pwd
+          ls -a
 
 
       # This ensures cleanup runs even if previous steps fail
