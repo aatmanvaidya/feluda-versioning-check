@@ -14,16 +14,15 @@ jobs:
   test-operators:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the code
       - uses: actions/checkout@v3
 
-      # Step 2: Set up uv
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      # Step 3: Print the uv version (optional, for debugging)
-      - name: Print uv version
-        run: uv --version
+      - name: Print uv version and cache dir
+        run: |
+          uv --version
+          uv cache dir
 
       # - name: Get modified files
       #   id: changed-files
