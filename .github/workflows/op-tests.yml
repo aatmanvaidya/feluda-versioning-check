@@ -28,8 +28,9 @@ jobs:
       - name: Create and activate virtual environment
         run: |
           uv venv
-          echo "Virtual environment location:"
-          ls -a
+          source .venv/bin/activate
+          uv pip install numpy
+          uv pip show numpy
 
 
       # This ensures cleanup runs even if previous steps fail
