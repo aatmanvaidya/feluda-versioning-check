@@ -50,43 +50,39 @@ jobs:
             echo "No files were changed in the operators directory"
           fi
 
-          # # Print current working directory for context
-          # echo "Current working directory: $(pwd)"
+          # Print current working directory for context
+          echo "Current working directory: $(pwd)"
 
-          # # Print list of all operator directories for context
-          # echo "Available operator directories:"
-          # ls -la feluda/operators/
+          # Initialize a variable to track if we found any operators to test
+          FOUND_TESTS=false
 
-          # # Initialize a variable to track if we found any operators to test
-          # FOUND_TESTS=false
+          # Loop through each operator directory and check if it contains changes
+          for OPERATOR_DIR in operators/*/; do
+            echo "Checking operator directory: $OPERATOR_DIR"
+            if echo "$CHANGED_FILES" | grep -q "$(basename $OPERATOR_DIR)"; then
+              echo "✓ Changes detected in operator: $(basename $OPERATOR_DIR)"
 
-          # # Loop through each operator directory and check if it contains changes
-          # for OPERATOR_DIR in feluda/operators/*/; do
-          #   echo "Checking operator directory: $OPERATOR_DIR"
-          #   if echo "$CHANGED_FILES" | grep -q "$(basename $OPERATOR_DIR)"; then
-          #     echo "✓ Changes detected in operator: $(basename $OPERATOR_DIR)"
-
-          #     # Check if test.py exists in this operator directory
-          #     if [ -f "${OPERATOR_DIR}test.py" ]; then
-          #       echo "✓ Found test.py in: ${OPERATOR_DIR}"
-          #       echo "→ Running tests for: $(basename $OPERATOR_DIR)"
-          #       echo "→ Changing to directory: ${OPERATOR_DIR}"
-          #       source .venv/bin/activate
-          #       cd "$OPERATOR_DIR"
-          #       echo "→ Current directory before running tests: $(pwd)"
-          #       python test.py
-          #       TEST_EXIT_CODE=$?
-          #       echo "→ Test exit code: $TEST_EXIT_CODE"
-          #       cd - > /dev/null
-          #       echo "→ Changed back to: $(pwd)"
-          #       FOUND_TESTS=true
-          #     else
-          #       echo "✗ No test.py found in: ${OPERATOR_DIR}"
-          #     fi
-          #   else
-          #     echo "✗ No changes detected in: $(basename $OPERATOR_DIR)"
-          #   fi
-          # done
+              # # Check if test.py exists in this operator directory
+              # if [ -f "${OPERATOR_DIR}test.py" ]; then
+              #   echo "✓ Found test.py in: ${OPERATOR_DIR}"
+              #   echo "→ Running tests for: $(basename $OPERATOR_DIR)"
+              #   echo "→ Changing to directory: ${OPERATOR_DIR}"
+              #   source .venv/bin/activate
+              #   cd "$OPERATOR_DIR"
+              #   echo "→ Current directory before running tests: $(pwd)"
+              #   python test.py
+              #   TEST_EXIT_CODE=$?
+              #   echo "→ Test exit code: $TEST_EXIT_CODE"
+              #   cd - > /dev/null
+              #   echo "→ Changed back to: $(pwd)"
+              #   FOUND_TESTS=true
+              # else
+              #   echo "✗ No test.py found in: ${OPERATOR_DIR}"
+              # fi
+            else
+              echo "✗ No changes detected in: $(basename $OPERATOR_DIR)"
+            fi
+          done
 
           # # Final status report
           # echo "----------------------------------------"
