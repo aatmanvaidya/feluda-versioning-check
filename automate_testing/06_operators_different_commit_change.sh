@@ -61,6 +61,16 @@ echo "Change made at: $UTC_TIME" >> "$DUMMY_FILE_1"
 echo "Branch: $BRANCH_NAME" >> "$DUMMY_FILE_1"
 echo "-------------------" >> "$DUMMY_FILE_1"
 
+# Stage changes for first operator
+echo "Staging changes for first operator..."
+git add "operators/image_vec_rep_resnet/dummy_changes.txt"
+check_status "Failed to stage changes for first operator"
+
+# Commit changes for first operator
+echo "Committing changes for first operator..."
+git commit -m "$COMMIT_MESSAGE_1"
+check_status "Failed to commit changes for first operator"
+
 # Second Operator: vid_vec_rep_clip
 echo "Creating/updating dummy file for second operator..."
 DUMMY_FILE_2="operators/vid_vec_rep_clip/dummy_changes.txt"
@@ -69,15 +79,15 @@ echo "Change made at: $UTC_TIME" >> "$DUMMY_FILE_2"
 echo "Branch: $BRANCH_NAME" >> "$DUMMY_FILE_2"
 echo "-------------------" >> "$DUMMY_FILE_2"
 
-# Stage all changes
-echo "Staging changes..."
-git add .
-check_status "Failed to stage changes"
+# Stage changes for second operator
+echo "Staging changes for second operator..."
+git add "operators/vid_vec_rep_clip/dummy_changes.txt"
+check_status "Failed to stage changes for second operator"
 
-# Commit changes
-echo "Committing changes..."
-git commit -m "$COMMIT_MESSAGE_1 && $COMMIT_MESSAGE_2"
-check_status "Failed to commit changes"
+# Commit changes for second operator
+echo "Committing changes for second operator..."
+git commit -m "$COMMIT_MESSAGE_2"
+check_status "Failed to commit changes for second operator"
 
 # Push branch to remote
 echo "Pushing branch to remote..."
@@ -86,7 +96,7 @@ check_status "Failed to push branch"
 
 # Create PR using gh cli
 echo "Creating Pull Request..."
-PR_URL=$(gh pr create --base $MAIN_BRANCH --head $BRANCH_NAME --title "$COMMIT_MESSAGE_1 && $COMMIT_MESSAGE_2" --body "Automated PR created by script for two operators")
+PR_URL=$(gh pr create --base $MAIN_BRANCH --head $BRANCH_NAME --title "Operators Changes: $COMMIT_MESSAGE_1 and $COMMIT_MESSAGE_2" --body "Automated PR created by script for two operators")
 check_status "Failed to create PR"
 
 echo "Pull Request created: $PR_URL"
