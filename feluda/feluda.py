@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 # test change in feluda for github aciton
 # change 44
 
+
 class Feluda:
     def __init__(self, configPath):
         self.config = config.load(configPath)
