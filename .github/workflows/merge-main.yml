@@ -121,13 +121,20 @@ jobs:
           NEW_TAG="${{ steps.push-changes.outputs.new_tag }}"
           NEW_VERSION=$(echo $NEW_TAG | sed 's/feluda-/v/')
           PREVIOUS_TAG="${{ steps.latest-tag.outputs.current_tag }}"
-          FELUDA_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- feluda/)
+
+          # First get commits that touch files in feluda/ directory
+          FELUDA_DIR_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- feluda/)
+          # Then get commits that touch pyproject.toml in root directory only (not nested)
+          ROOT_TOML_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- ./pyproject.toml)
+          # Combine and remove duplicates
+          FELUDA_COMMITS=$(echo "$FELUDA_DIR_COMMITS"$'\n'"$ROOT_TOML_COMMITS" | grep -v "^$" | sort | uniq)
 
           echo "Commits between ${PREVIOUS_TAG} and ${NEW_TAG}:"
           echo "$FELUDA_COMMITS"
 
           # Get current date in YYYY-MM-DD format
           CURRENT_DATE=$(date +"%Y-%m-%d")
+
           # Create release notes file with proper format
           echo "## ${NEW_VERSION} (${CURRENT_DATE})" > release_notes.md
           echo "" >> release_notes.md
@@ -163,7 +170,7 @@ jobs:
           fi
 
           # Add contributors section
-          contributors=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"%an" --no-merges -- feluda/ | sort -u)
+          contributors=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"%an" --no-merges -- feluda/ ./pyproject.toml | sort -u)
           if [ -n "$contributors" ]; then
             echo "### Contributors" >> release_notes.md
             echo "$contributors" | sed 's/^/* /' >> release_notes.md
@@ -190,10 +197,11 @@ jobs:
             cat release_notes.md >> CHANGELOG.md
           fi
 
+          # Show content for debugging
           echo "Updated CHANGELOG.md:"
           head -n 10 CHANGELOG.md
 
           # Commit and push the updated CHANGELOG
           git add CHANGELOG.md
-          git commit -m "docs: update CHANGELOG.md for ${NEW_VERSION} [skip ci]" || true
+          git commit -m "docs: update CHANGELOG.md for ${NEW_VERSION}" || true
           git push || true
