@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.8.0 (2025-04-07)
+
+### Features
+* feat: change to feluda (63bbfc5)
+
+### Chores
+* chore: semantic versioning workflow and update related files (1f7ef53)
+
+### Contributors
+* Aatman Vaidya
+* GitHub Actions [Bot]
+
+
 ## v0.7.3 (2025-04-07)
 
 ### Chores
