@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.7.0 (2025-04-07)
+
+### Features
+* feat: change to feluda (eb12fe3)
+
+### Contributors
+* Aatman Vaidya
+
+
 
 
 # Release Notes for feluda-0.6.0
