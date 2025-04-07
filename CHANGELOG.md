@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.7.3 (2025-04-07)
+
+### Chores
+* chore: change to feluda pyproject (743355d)
+* chore: semantic versioning workflow and update related files (11919a7)
+
+### Contributors
+* Aatman Vaidya
+* GitHub Actions [Bot]
+
+
 ## v0.7.2 (2025-04-07)
 
 ### Chores
