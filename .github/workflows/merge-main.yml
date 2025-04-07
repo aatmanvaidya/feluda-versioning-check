@@ -122,14 +122,10 @@ jobs:
           NEW_VERSION=$(echo $NEW_TAG | sed 's/feluda-/v/')
           PREVIOUS_TAG="${{ steps.latest-tag.outputs.current_tag }}"
 
-          # First get commits that touch files in feluda/ directory
-          FELUDA_DIR_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- feluda/)
-          # Then get commits that touch pyproject.toml in root directory only (not nested)
-          ROOT_TOML_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- ./pyproject.toml)
-          # Combine and remove duplicates
-          FELUDA_COMMITS=$(echo "$FELUDA_DIR_COMMITS"$'\n'"$ROOT_TOML_COMMITS" | grep -v "^$" | sort | uniq)
+          # Get only commits that touch files in feluda/ or the exact pyproject.toml file
+          FELUDA_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- "feluda/" "pyproject.toml")
 
-          echo "Commits between ${PREVIOUS_TAG} and ${NEW_TAG}:"
+          echo "Commits between ${PREVIOUS_TAG} and ${NEW_TAG} affecting feluda/ or pyproject.toml:"
           echo "$FELUDA_COMMITS"
 
           # Get current date in YYYY-MM-DD format
@@ -170,7 +166,7 @@ jobs:
           fi
 
           # Add contributors section
-          contributors=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"%an" --no-merges -- feluda/ ./pyproject.toml | sort -u)
+          contributors=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"%an" --no-merges -- "feluda/" "pyproject.toml" | sort -u)
           if [ -n "$contributors" ]; then
             echo "### Contributors" >> release_notes.md
             echo "$contributors" | sed 's/^/* /' >> release_notes.md
