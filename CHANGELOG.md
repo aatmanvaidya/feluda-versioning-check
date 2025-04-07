@@ -1,3 +1,12 @@
+# Release Notes for feluda-0.6.0
+
+## Features
+* feat: change to feluda (b136df8)
+
+## Contributors
+* Aatman Vaidya
+
+
 # Release feluda-0.14.0
 
 ## Features
