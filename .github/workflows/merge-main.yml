@@ -119,22 +119,25 @@ jobs:
           git config --local user.name "GitHub Actions [Bot]"
 
           NEW_TAG="${{ steps.push-changes.outputs.new_tag }}"
+          NEW_VERSION=$(echo $NEW_TAG | sed 's/feluda-/v/')
           PREVIOUS_TAG="${{ steps.latest-tag.outputs.current_tag }}"
           FELUDA_COMMITS=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"* %s (%h)" --no-merges -- feluda/)
 
           echo "Commits between ${PREVIOUS_TAG} and ${NEW_TAG}:"
           echo "$FELUDA_COMMITS"
 
-          echo "# Release Notes for ${NEW_TAG}" > release_notes.md
+          # Get current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +"%Y-%m-%d")
+          # Create release notes file with proper format
+          echo "## ${NEW_VERSION} (${CURRENT_DATE})" > release_notes.md
           echo "" >> release_notes.md
 
-          # Function to add section if commits exist
           add_section() {
             local title="$1"
             local pattern="$2"
             local commits=$(echo "$FELUDA_COMMITS" | grep "^* $pattern" || true)
             if [ -n "$commits" ]; then
-              echo "## $title" >> release_notes.md
+              echo "### ${title}" >> release_notes.md
               echo "$commits" >> release_notes.md
               echo "" >> release_notes.md
             fi
@@ -154,30 +157,43 @@ jobs:
             grep -v "^* docs" || true)
 
           if [ -n "$misc_commits" ]; then
-            echo "## Miscellaneous" >> release_notes.md
+            echo "### Miscellaneous" >> release_notes.md
             echo "$misc_commits" >> release_notes.md
             echo "" >> release_notes.md
           fi
 
+          # Add contributors section
           contributors=$(git log "${PREVIOUS_TAG}..${NEW_TAG}" --pretty=format:"%an" --no-merges -- feluda/ | sort -u)
           if [ -n "$contributors" ]; then
-            echo "## Contributors" >> release_notes.md
+            echo "### Contributors" >> release_notes.md
             echo "$contributors" | sed 's/^/* /' >> release_notes.md
             echo "" >> release_notes.md
           fi
 
+          # Update CHANGELOG.md (keep existing header and append new release notes after it)
           if [ -f CHANGELOG.md ]; then
-            cat release_notes.md > temp_changelog
+            # Extract the first line (# CHANGELOG) from the existing file
+            header=$(head -n 1 CHANGELOG.md)
+
+            # Create new changelog with header, new release notes, then rest of previous content
+            echo "$header" > temp_changelog
             echo "" >> temp_changelog
-            cat CHANGELOG.md >> temp_changelog
+            cat release_notes.md >> temp_changelog
+
+            # Add the rest of the existing changelog (skip the first line)
+            tail -n +2 CHANGELOG.md >> temp_changelog
             mv temp_changelog CHANGELOG.md
           else
-            mv release_notes.md CHANGELOG.md
+            # If no CHANGELOG.md exists, create it with proper header
+            echo "# CHANGELOG" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            cat release_notes.md >> CHANGELOG.md
           fi
 
           echo "Updated CHANGELOG.md:"
-          head -n 20 CHANGELOG.md
+          head -n 10 CHANGELOG.md
 
+          # Commit and push the updated CHANGELOG
           git add CHANGELOG.md
-          git commit -m "docs: update CHANGELOG.md" || true
+          git commit -m "docs: update CHANGELOG.md for ${NEW_VERSION} [skip ci]" || true
           git push || true

@@ -1,3 +1,7 @@
+# CHANGELOG
+
+
+
 # Release Notes for feluda-0.6.0
 
 ## Features
@@ -20,4 +24,3 @@
 * ci: support for better changelog (dbe26b8)
 * Merge pull request #49 from aatmanvaidya/test-action-12 (0f409fd)
 * test: update image vec (d618e81)
-
