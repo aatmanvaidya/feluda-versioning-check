@@ -30,8 +30,6 @@ class TestPackageVersionManager(unittest.TestCase):
         # Set up initial commit
         self._create_initial_commit()
 
-
-
     def tearDown(self):
         """Clean up the temporary directory."""
         shutil.rmtree(self.temp_dir)
@@ -271,7 +269,7 @@ class TestPackageVersionManager(unittest.TestCase):
             "feluda/example1.py", "print('hello')", "feat: added feature to feluda"
         )
 
-        commit2 = self._create_file_and_commit(
+        self._create_file_and_commit(
             "operators/operator1/example1.py",
             "print('hello')",
             "feat: added feature to operator1 with BREAKING CHANGE",
@@ -340,10 +338,14 @@ class TestPackageVersionManager(unittest.TestCase):
         )
 
         feluda_path = os.path.join(self.temp_dir, "feluda")
-        expected_tag = manager.packages[feluda_path].get("pyproject_data", {}).get(
-            "tool", {}
-        ).get("semantic_release", {}).get("branches", {}).get("main", {}).get(
-            "tag_format", "{name}-v{version}"
+        expected_tag = (
+            manager.packages[feluda_path]
+            .get("pyproject_data", {})
+            .get("tool", {})
+            .get("semantic_release", {})
+            .get("branches", {})
+            .get("main", {})
+            .get("tag_format", "{name}-v{version}")
         )
 
         self.assertEqual(
@@ -412,7 +414,7 @@ class TestPackageVersionManager(unittest.TestCase):
             "feluda/example1.py", "print('hello')", "feat: added feature to feluda"
         )
 
-        commit2 = self._create_file_and_commit(
+        self._create_file_and_commit(
             "operators/operator1/example1.py",
             "print('hello')",
             "feat: added feature to operator1 with BREAKING CHANGE",
@@ -442,21 +444,13 @@ class TestPackageVersionManager(unittest.TestCase):
         self.assertEqual(updated_versions[feluda_path]["bump_type"], "minor")
 
         # Check operator1 version (should be major bump from 0.1.0 to 1.0.0)
-        self.assertEqual(
-            updated_versions[operator1_path]["old_version"], "0.1.0"
-        )
-        self.assertEqual(
-            updated_versions[operator1_path]["new_version"], "1.0.0"
-        )
+        self.assertEqual(updated_versions[operator1_path]["old_version"], "0.1.0")
+        self.assertEqual(updated_versions[operator1_path]["new_version"], "1.0.0")
         self.assertEqual(updated_versions[operator1_path]["bump_type"], "major")
 
         # Check operator2 version (should be patch bump from 0.1.0 to 0.1.1)
-        self.assertEqual(
-            updated_versions[operator2_path]["old_version"], "0.1.0"
-        )
-        self.assertEqual(
-            updated_versions[operator2_path]["new_version"], "0.1.1"
-        )
+        self.assertEqual(updated_versions[operator2_path]["old_version"], "0.1.0")
+        self.assertEqual(updated_versions[operator2_path]["new_version"], "0.1.1")
         self.assertEqual(updated_versions[operator2_path]["bump_type"], "patch")
 
         # Verify that the versions were updated in the pyproject.toml files
@@ -498,7 +492,7 @@ class TestPackageVersionManager(unittest.TestCase):
 
         # Update versions
         updated_versions = manager.update_package_versions()
-        feluda_path = os.path.join(self.temp_dir, "feluda")
+
         # Check that feluda was skipped (since 0.2.0 tag already exists)
         self.assertEqual(len(updated_versions), 0)
 
@@ -580,7 +574,7 @@ class TestPackageVersionManager(unittest.TestCase):
             "feluda/example1.py", "print('hello')", "feat: new feature"
         )
 
-        commit2 = self._create_file_and_commit(
+        self._create_file_and_commit(
             "feluda/example2.py", "print('world')", "fix: bug fix"
         )
 
@@ -620,14 +614,14 @@ class TestPackageVersionManager(unittest.TestCase):
             "feluda/file1.py", "print('hello')", "feat: new feature in feluda"
         )
 
-        commit2 = self._create_file_and_commit(
+        self._create_file_and_commit(
             "operators/operator1/file1.py",
             "print('hello')",
             "fix: bug fix in operator1",
         )
 
         # Create more commits
-        commit3 = self._create_file_and_commit(
+        self._create_file_and_commit(
             "feluda/file2.py",
             "print('world')",
             "feat: another feature in feluda with BREAKING CHANGE",
@@ -649,19 +643,14 @@ class TestPackageVersionManager(unittest.TestCase):
         self.assertEqual(len(updated_versions), 2)
         feluda_path = os.path.join(self.temp_dir, "feluda")
         operator1_path = os.path.join(self.temp_dir, "operators", "operator1")
-        operator2_path = os.path.join(self.temp_dir, "operators", "operator2")
         # Check feluda version (should be major bump due to BREAKING CHANGE)
         self.assertEqual(updated_versions[feluda_path]["old_version"], "0.1.0")
         self.assertEqual(updated_versions[feluda_path]["new_version"], "1.0.0")
         self.assertEqual(updated_versions[feluda_path]["bump_type"], "major")
 
         # Check operator1 version (should be minor bump due to feat commit)
-        self.assertEqual(
-            updated_versions[operator1_path]["old_version"], "0.1.0"
-        )
-        self.assertEqual(
-            updated_versions[operator1_path]["new_version"], "0.2.0"
-        )
+        self.assertEqual(updated_versions[operator1_path]["old_version"], "0.1.0")
+        self.assertEqual(updated_versions[operator1_path]["new_version"], "0.2.0")
         self.assertEqual(updated_versions[operator1_path]["bump_type"], "minor")
 
     @patch("scripts.semantic_release_workflow.subprocess.run")
@@ -689,25 +678,27 @@ class TestPackageVersionManager(unittest.TestCase):
         updated_versions = manager.update_package_versions()
         self.assertEqual(len(updated_versions), 0)
 
-    @skip # See Todo message
+    @skip  # See Todo message
     def test_multiple_breaking_changes(self):
         """Test that the highest bump type is selected when multiple breaking changes exist."""
         # Create commits with breaking changes in different packages
         self._create_file_and_commit(
-            "feluda/breaking.py", "print('break')", "feat: breaking change in feluda\n\nBREAKING CHANGE: API change"
+            "feluda/breaking.py",
+            "print('break')",
+            "feat: breaking change in feluda\n\nBREAKING CHANGE: API change",
         )
 
         self._create_file_and_commit(
             "operators/operator1/breaking.py",
             "print('break')",
-            "fix: minor fix with BREAKING CHANGE"
+            "fix: minor fix with BREAKING CHANGE",
         )
 
         # TODO: This test fails because _parse_conventional_commit detects the "breaking change" in the message and marks this as major
         commit3 = self._create_file_and_commit(
             "operators/operator2/normal.py",
             "print('normal')",
-            "feat: new feature without breaking change"
+            "feat: new feature without breaking change",
         )
 
         manager = PackageVersionManager(self.temp_dir, self.initial_commit, commit3)
@@ -715,5 +706,11 @@ class TestPackageVersionManager(unittest.TestCase):
 
         # Check that feluda and operator1 got major bumps, and operator2 got a minor bump
         self.assertEqual(updated_versions["feluda"]["bump_type"], "major")
-        self.assertEqual(updated_versions[f"{self.temp_dir}/operators/operator1"]["bump_type"], "major")
-        self.assertEqual(updated_versions[f"{self.temp_dir}/operators/operator2"]["bump_type"], "minor")
+        self.assertEqual(
+            updated_versions[f"{self.temp_dir}/operators/operator1"]["bump_type"],
+            "major",
+        )
+        self.assertEqual(
+            updated_versions[f"{self.temp_dir}/operators/operator2"]["bump_type"],
+            "minor",
+        )

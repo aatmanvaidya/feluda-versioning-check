@@ -65,16 +65,22 @@ class PackageVersionManager:
         packages = {}
 
         # Root package (feluda)
-        package_roots = [f"{self.repo_root}/feluda"]
 
         # Discover packages inside 'operators' directory using glob
+        feluda_path = f"{self.repo_root}/feluda"
         operators_path = f"{self.repo_root}/operators"
+
+        if not os.path.isdir(feluda_path):
+            feluda_path = "feluda"
+            operators_path = "operators"
+        package_roots = [feluda_path]
+
         if os.path.isdir(operators_path):
             for folder in glob.glob(f"{operators_path}/*/pyproject.toml"):
                 package_roots.append(os.path.dirname(folder))
         for package_root in package_roots:
             try:
-                if package_root == "feluda":
+                if package_root.endswith("feluda"):
                     pyproject_path = os.path.join(self.repo_root, "pyproject.toml")
                     full_path = os.path.join(self.repo_root, "feluda")
                 else:
