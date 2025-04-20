@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.9.5 (2025-04-20)
+
+### Chores
+* chore: change to feluda (#112) (bd041e4)
+* chore: semantic versioning workflow and update related files (9cca4ba)
+
+### Contributors
+* Aatman Vaidya
+* GitHub Actions [Bot]
+
+
 ## v0.9.4 (2025-04-20)
 
 ### Chores
