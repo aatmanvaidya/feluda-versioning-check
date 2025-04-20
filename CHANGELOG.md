@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.9.4 (2025-04-20)
+
+### Chores
+* chore: changes to both feluda and image vec in the same commit (7d933f8)
+* chore: semantic versioning workflow and update related files (a6c06fe)
+
+### Contributors
+* Aatman Vaidya
+* GitHub Actions [Bot]
+
+
 ## v0.9.3 (2025-04-20)
 
 ### Chores
