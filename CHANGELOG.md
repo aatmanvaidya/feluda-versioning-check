@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.10.0 (2025-04-20)
+
+### Features
+* feat: changes to feluda (dc4fb65)
+
+### Chores
+* chore: changes to pyproject.toml at root (897348e)
+* chore: semantic versioning workflow and update related files (c4d291d)
+
+### Contributors
+* Aatman Vaidya
+* GitHub Actions [Bot]
+
+
 ## v0.9.5 (2025-04-20)
 
 ### Chores
