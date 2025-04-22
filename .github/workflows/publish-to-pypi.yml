@@ -24,7 +24,11 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Install required packages
-        run: uv pip install requests tomlkit
+        run: |
+          uv venv
+          source .venv/bin/activate
+
+          uv pip install requests tomlkit
 
       - name: Discover updated packages
         id: discover
