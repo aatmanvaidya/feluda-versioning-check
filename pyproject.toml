@@ -36,7 +36,7 @@ prerelease = false
 tag_format = "{name}-{version}"
 
 [tool.uv.workspace]
-members = ["operators/image_vec_rep_resnet"]
+members = ["operators/image_vec_rep_resnet", "operators/vid_vec_rep_clip"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["feluda"]

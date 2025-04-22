@@ -66,3 +66,13 @@ The demo notebook where the pacakges from test pypi are installed and used can b
 chmod +x file_name.sh
 ./file_name.sh "feat: your commit message here"
 ```
+
+----
+### install all operators pacakges
+```sh
+for file in operators/*/pyproject.toml; do echo "Installing from $file"; uv pip install -r "$file"; done
+```
+### build and install packages
+```sh
+for dir in operators/*; do uv build "$dir" && uv pip install dist/*.whl && rm -rf dist/; done
+```

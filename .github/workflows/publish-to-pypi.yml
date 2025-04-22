@@ -1,0 +1,45 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install required packages
+        run: uv pip install requests tomlkit
+
+      - name: Discover updated packages
+        id: discover
+        run: |
+          uv run -m scripts.find_updated_packages
+        env:
+          CHECK_TEST_PYPI: true
+          VERIFY_TAGS: true
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+
+      - name: Print discovered packages
+        run: echo "${{ steps.discover.outputs.packages_to_publish }}"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          uv cache dir
+          uv cache prune
