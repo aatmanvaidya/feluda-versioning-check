@@ -11,14 +11,14 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.10"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -37,10 +37,19 @@ jobs:
         env:
           CHECK_TEST_PYPI: true
           VERIFY_TAGS: true
-          GITHUB_OUTPUT: $GITHUB_OUTPUT
 
-      - name: Print discovered packages
-        run: echo "${{ steps.discover.outputs.packages_to_publish }}"
+      - name: Print discovered packages info
+        # Only run if the count (set by your script) is greater than 0
+        if: steps.discover.outputs.publish_count > 0
+        run: |
+          echo "Found ${{ steps.discover.outputs.publish_count }} package(s) to publish:"
+          # Use jq to pretty-print the JSON output variable
+          echo '${{ steps.discover.outputs.packages_to_publish }}' | jq .
+
+      # Optional: Step to explicitly state when no packages are found
+      - name: Print no packages message
+        if: steps.discover.outputs.publish_count == 0
+        run: echo "No packages need to be published."
 
       - name: Cleanup
         if: always()
