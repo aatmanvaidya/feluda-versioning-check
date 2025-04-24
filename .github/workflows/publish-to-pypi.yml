@@ -99,7 +99,7 @@ jobs:
             echo "✅ Done with $pkg"
           done
         env:
-          UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_PUBLISH_TOKEN }}
+          TEST_PYPI_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_PUBLISH_TOKEN }}
 
 
       - name: Cleanup
