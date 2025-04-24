@@ -27,7 +27,6 @@ jobs:
         run: |
           uv venv
           source .venv/bin/activate
-
           uv pip install requests tomlkit
 
       - name: Discover updated packages
@@ -38,21 +37,36 @@ jobs:
           CHECK_TEST_PYPI: true
           VERIFY_TAGS: true
 
-      - name: Print discovered packages info
-        # Only run if the count (set by your script) is greater than 0
-        if: steps.discover.outputs.publish_count > 0
-        run: |
-          echo "Found ${{ steps.discover.outputs.publish_count }} package(s) to publish:"
-          # Use jq to pretty-print the JSON output variable
-          echo '${{ steps.discover.outputs.packages_to_publish }}' | jq .
-
-      # Optional: Step to explicitly state when no packages are found
-      - name: Print no packages message
-        if: steps.discover.outputs.publish_count == 0
-        run: echo "No packages need to be published."
-
-      - name: Cleanup
+      - name: Fail if tag verification issues exist
         if: always()
         run: |
-          uv cache dir
-          uv cache prune
+          if [ -f tag_verification_issues.txt ]; then
+            echo "❌ Tag verification issues found:"
+            cat tag_verification_issues.txt
+            echo "⛔️ Aborting publish step due to tag issues."
+            exit 1
+          else
+            echo "✅ No tag verification issues."
+          fi
+
+      - name: Print pyproject.toml paths of packages to publish
+        id: list_paths
+        run: |
+          if [ ! -f packages_to_publish.txt ]; then
+            echo "No packages_to_publish.txt file found."
+            exit 1
+          fi
+
+          echo "📝 Packages to publish:"
+          cat packages_to_publish.txt
+
+          echo ""
+          echo "🔍 Finding pyproject.toml paths:"
+          IFS=',' read -ra PACKAGES <<< "$(cat packages_to_publish.txt)"
+          for pkg in "${PACKAGES[@]}"; do
+            if [ "$pkg" == "feluda" ]; then
+              echo " - $pkg/pyproject.toml => ./pyproject.toml"
+            else
+              echo " - $pkg/pyproject.toml => $pkg/pyproject.toml"
+            fi
+          done

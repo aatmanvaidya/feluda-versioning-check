@@ -1,5 +1,4 @@
 import glob
-import json
 import os
 import subprocess
 
@@ -143,7 +142,8 @@ def main():
     packages_with_tag_issues = []
 
     # Determine whether to check Test PyPI or production PyPI
-    check_test_pypi = os.environ.get("CHECK_TEST_PYPI", "true").lower() == "true"
+    # If CHECK_TEST_PYPI is set to "true" in environment variables, use Test PyPI
+    check_test_pypi = os.environ.get("CHECK_TEST_PYPI", "false").lower() == "true"
 
     # Force tag verification or not (default to true)
     verify_tags = os.environ.get("VERIFY_TAGS", "true").lower() == "true"
@@ -183,25 +183,13 @@ def main():
             if pypi_version is None:
                 # Package not found on PyPI, include it for first-time publishing
                 print(f"Package {package_name} will be published for the first time")
-                packages_to_publish.append(
-                    {
-                        "path": package_root,
-                        "name": package_name,
-                        "version": current_version,
-                    }
-                )
+                packages_to_publish.append(package_root)
             elif current_version != pypi_version:
                 # Version is different, include it for publishing
                 print(
                     f"Package {package_name} needs publishing: Local={current_version}, PyPI={pypi_version}"
                 )
-                packages_to_publish.append(
-                    {
-                        "path": package_root,
-                        "name": package_name,
-                        "version": current_version,
-                    }
-                )
+                packages_to_publish.append(package_root)
             else:
                 print(
                     f"Package {package_name} is up to date (version {current_version})"
@@ -209,30 +197,22 @@ def main():
         except Exception as e:
             print(f"Error checking version for {package_info['name']}: {e}")
 
-    if packages_to_publish:
+    # Write the list of packages to publish to a file
+    with open("packages_to_publish.txt", "w") as f:
+        f.write(",".join(packages_to_publish))
+
+    # Write a report of tag issues if any were found
+    if packages_with_tag_issues:
+        with open("tag_verification_issues.txt", "w") as f:
+            f.write("\n".join(packages_with_tag_issues))
         print(
-            f"\nPackages to publish: {', '.join([p['name'] for p in packages_to_publish])}"
+            f"\nWarning: {len(packages_with_tag_issues)} packages have git tag verification issues. See tag_verification_issues.txt"
         )
 
-        # Output for GitHub Actions
-        with open(
-            os.environ.get("GITHUB_OUTPUT", "packages_to_publish.json"), "w"
-        ) as f:
-            json.dump({"packages": packages_to_publish}, f)
-
-        # For GitHub Actions workflow, set an output that can be used in subsequent steps
-        if "GITHUB_OUTPUT" in os.environ:
-            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                packages_json = json.dumps(packages_to_publish)
-                f.write(f"packages_to_publish={packages_json}\n")
-                f.write(f"publish_count={len(packages_to_publish)}\n")
+    if packages_to_publish:
+        print(f"\nPackages to publish: {', '.join(packages_to_publish)}")
     else:
         print("\nNo packages need to be published.")
-        # For GitHub Actions workflow
-        if "GITHUB_OUTPUT" in os.environ:
-            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-                f.write("packages_to_publish=[]\n")
-                f.write("publish_count=0\n")
 
 
 if __name__ == "__main__":
